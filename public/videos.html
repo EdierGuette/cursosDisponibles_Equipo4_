@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Videos del Curso</title>
+    <link rel="stylesheet" href="/styles/styles.css" />
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #3f709b);
+            color: #fff;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        nav.navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #2c3e50;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        nav.navbar .logo {
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            display: inline-block;
+        }
+        nav.navbar .nav-links {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+            
+        }
+        nav.navbar .nav-links li {
+            display: inline-block;
+            margin-left: 20px;
+        }
+        nav.navbar .nav-links li a {
+            font-weight: bold;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: inline-block;
+        }
+        nav.navbar .nav-links li a:hover {
+            text-decoration: underline;
+        }
+        .hr-titulo {
+            font-size: 2.5rem;
+            margin: 80px 0 40px 0;
+        }
+        hr.hr-titulo {
+            margin: 40px 0 40px 0;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .videos-container {
+            width: 90vw;
+            max-width: 1150px;
+            margin: 100px auto 0 auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+        #videos-list ul {
+            list-style: none;
+            padding: 0;
+        }
+        #videos-list li {
+            margin-bottom: 40px;
+        }
+        #videos-list li:first-child {
+            margin-top: 40px;
+        }
+        #videos-list h3 {
+            margin-bottom: 10px;
+        }
+        iframe {
+            display: block;
+            margin: 0 auto 40px auto;
+            width: 90vw;
+            max-width: 1100px;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">CodeAcademy</div>
+            <ul class="nav-links">
+                <li><a href="http://localhost:3000">Inicio</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="videos-container">
+        <hr>
+        <h2 class="hr-titulo">Videos del Curso</h2><hr>
+        <div id="videos-list">
+            <!-- Lista de videos se generará aquí -->
+        </div>
+    </section>
+
+    <script>
+        // Obtener el ID del curso desde la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('id');
+
+        const videosListDiv = document.getElementById('videos-list');
+
+        if (!courseId) {
+            videosListDiv.innerHTML = '<p>ID de curso no proporcionado.</p>';
+        } else {
+            fetch(`/api/courses/${courseId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Curso no encontrado');
+                    }
+                    return response.json();
+                })
+                .then(course => {
+                    if (!course.videos || course.videos.length === 0) {
+                        videosListDiv.innerHTML = '<p>No hay videos disponibles para este curso.</p>';
+                        return;
+                    }
+                    // Crear lista de videos
+                    const ul = document.createElement('ul');
+                    course.videos.forEach(video => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            <h3>${video.title}</h3>
+                            <iframe src="${video.url}" allowfullscreen></iframe>
+                        `;
+                        ul.appendChild(li);
+                    });
+                    videosListDiv.appendChild(ul);
+                })
+                .catch(error => {
+                    videosListDiv.innerHTML = `<p>Error al cargar el curso: ${error.message}</p>`;
+                });
+        }
+    </script>
+</body>
+</html>
